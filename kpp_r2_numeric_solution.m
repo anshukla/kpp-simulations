@@ -1,7 +1,8 @@
 % Solve: u_t=D*(u_{xx}+u_{yy})+gamma*q(u) where q(u)='u.*(1-u)';
 %
 % The solution of this PDE is obtained by the finite difference
-% method, assuming dx=dy=dt=1.
+% method, assuming dx=dy=dt=1 as desribed in _An Introduction to Computational
+% Engineering With Matlab by Xin-She Yang.
 
 % ----------------------------------------------------
 function kpp(n)

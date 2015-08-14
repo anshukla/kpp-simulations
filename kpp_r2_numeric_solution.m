@@ -37,6 +37,7 @@ I = 2:n-1; J = 2:n-1;
 for step=1:time,
 % Laplace gradient of the equation
  grad(I,J)= u(I,J-1)+u(I,J+1)+u(I-1,J)+u(I+1,J);
+ grad(1, :) = grad(2, :); grad(n, :) = grad(n-1, :); grad(:, 1) = grad(:, 2); grad(:, n) = grad(:, n-1);
  u =(1-4*D)*u+D*grad+gamma*u.*(1-u);
  pcolor(u);  shading interp;
  colorbar; colormap hsv;

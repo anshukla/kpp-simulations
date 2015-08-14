@@ -16,8 +16,8 @@ time=100; D=0.2; gamma=0.5;
 
 % ---- Initial values for u --------------
 % Non-zero on a compact set
- u=zeros(n);  grad=u*0;
- u(n/2, n/2) = 1E-5;
+%  u=zeros(n);  grad=u*0;
+%  u(n/2, n/2) = 1E-5;
 
 % Random
 % u=rand(n);   grad=u*0;
@@ -28,6 +28,8 @@ time=100; D=0.2; gamma=0.5;
 % Nonzero on a strip
 % u = [zeros(n, 90) 0.9*ones(n, 20) zeros(n, 90)];
 % grad = u*0;
+u=[ones(n, n/4), zeros(n, 3*n/4)];
+grad = u*0;
 
 % Vectorization/index for u(i,j) and the loop --------
 I = 2:n-1; J = 2:n-1;

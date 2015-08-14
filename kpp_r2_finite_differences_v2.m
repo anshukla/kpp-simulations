@@ -41,6 +41,7 @@ for step=1:time
   grad(I, J) = u(I, J - 1) + u(I, J + 1) + u(I - 1, J) + u(I + 1, J);
   grad(1, :) = grad(2, :); grad(N, :) = grad(N-1, :); grad(:, 1) = grad(:, 2); grad(:, N) = grad(:, N-1);
   u = u + (t_delta / h^2) * (grad - 2*d*u) + t_delta*f;
+  set(gcf,'renderer','painters');
   pcolor(u); shading interp;
   colorbar; colormap hsv;
   drawnow;

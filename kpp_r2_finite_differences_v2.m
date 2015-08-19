@@ -94,7 +94,7 @@ for step=1:time
   end
 
   pcolor(u); shading interp;
-  colorbar; colormap hsv;
+  colorbar; colormap jet;
   drawnow;
 end
 

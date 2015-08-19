@@ -7,6 +7,9 @@
 % u(t_i + t_delta, x) = u(t_i, x) + t_delta / h^2 [ \sum u(t_i, x + h_e) - 2nu(t_i, x) ]
 %                       + t_delta * u(1-u)
 %
+% NOTES:
+%       1. To animate, you may have to increase your JVM heap size
+%          by going to Preferences > General > Java Heap Memory
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clc; close all; clear;
@@ -73,6 +76,13 @@ if INITIAL_DATA_TYPE == WEDGE
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Animation initialization
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+figure
+filename = sprintf('output/kpp_v_%d_%d_theta_%.2f_p_%d_%d.gif',...
+                    v(1), v(2), theta, p(1), p(2));
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Run simulation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -96,6 +106,16 @@ for step=1:time
   pcolor(u); shading interp;
   colorbar; colormap jet;
   drawnow;
+
+  % Append the current frame to the animation
+  frame = getframe(1);
+  im = frame2im(frame);
+  [A, map] = rgb2ind(im, 256);
+  if step == 1
+    imwrite(A, map, filename, 'gif', 'LoopCount', Inf, 'DelayTime', 0.1);
+  else
+    imwrite(A, map, filename, 'gif', 'WriteMode', 'append', 'DelayTime', 0.1);
+  end
 end
 
 surf(u);

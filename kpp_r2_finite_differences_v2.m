@@ -13,56 +13,70 @@ clc; close all; clear;
 
 % -----------------------------------------------------------------
 
+COMPACT_SUPPORT = 0;
+WEDGE           = 1;
+
+INITIAL_DATA_TYPE = WEDGE;        % set to the type of initial condition
+                                            % we want to simulate
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Initialize parameters
-% We want t_delta \approx h^2 where n is the mesh size
-d = 2;              % working in R^2
-n = 150;             % simulation grid size
-h = 1;            % mesh width
-t_delta = h^2;      % time increment
-time = 80;         % number of steps to simulate. time * t_delta is the total "unit time"
-f = zeros(n / h);   % growth rate
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+d = 2;                  % working in R^2
+n = 150;                % simulation grid size
+h = 1;                  % mesh width
+
+% We want t_delta \approx h^2 where n is the mesh size. This cancels out
+% some ugly constant factors in the update equation.
+t_delta = h^2;          % time increment
+time = 80;              % number of steps to simulate. time * t_delta is the total "unit time"
+f = zeros(n / h);       % growth rate
 epsilon = 0.1;
-gamma = 0.3;        % dampen the gradient
+gamma = 0.3;            % dampen the gradient
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Initial conditions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-N = n / h;          % mesh size
-u = zeros(N);       % initial conditions
-%v0 = 1E-2;
-v0 = 0.9;
+N = n / h;              % mesh size
+u = zeros(N);           % the matrix ``u`` will hold our simulated values for the solution
+grad = 0 * u;           % we'll store the neighbor_average in this term
+                        % TODO(ansh): rename to ``neighbors``
+v0 = 9E-1;              % some small nonzero intial value
 
-% compact set
+% Nonzero on a compact set
 
-%u(N/2, N/2) = v0; u(N/2 + 1, N/2) = v0; u(N/2, N/2 + 1) = v0; u(N/2 - 1, N/2 + 1) = v0; % nonzero on compact set
+% Nonzero on a centered square.
+if INITIAL_DATA_TYPE == COMPACT_SUPPORT
+  u(N/2, N/2) = v0; u(N/2 + 1, N/2) = v0; u(N/2, N/2 + 1) = v0; u(N/2 - 1, N/2 + 1) = v0;
+end
 
-% wedge
-
-% specify the base point of our wedge
-p = [100 100];
-
-% specify some vector
-v = [1 0];
-tolerance = cos(pi / 6);
-for i = -N:1:N
-  for j = -N:1:N
-    cos_ = ([i j] * v') / (norm([i j]) * norm(v));
-    if tolerance < cos_ && cos_ < 1                   % make sure our [i j] are within the wedge
-      i_p = i + p(1);
-      j_p = j + p(2);
-      if 1 <= i_p && i_p <= N && 1 <= j_p && j_p <= N
-        u(i + p(1),j + p(2)) = v0;
+if INITIAL_DATA_TYPE == WEDGE
+  p = [100 100];                % specify the base point of our wedge
+  v = [1 0];                    % specify the vector which determines wedge direction
+  tolerance = cos(pi / 6);      % sepcify the degree around the vector which we want nonzero
+  for i = -N:1:N
+    for j = -N:1:N
+      cos_ = ([i j] * v') / (norm([i j]) * norm(v));
+      if tolerance < cos_ && cos_ < 1                   % make sure our [i j] are within the wedge
+        i_p = i + p(1);
+        j_p = j + p(2);
+        if 1 <= i_p && i_p <= N && 1 <= j_p && j_p <= N
+          u(i + p(1),j + p(2)) = v0;
+        end
       end
     end
   end
 end
 
-% initialize values of u
-grad = 0 * u;       % we'll store the gradient in this term
-u_avg = 0 * u;
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Run simulation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Indices using which we can represent the gradient
+% Indices using which we can represent the "inner" terms of the matrix
 I = 2:N-1; J = 2:N-1;
 
 for step=1:time

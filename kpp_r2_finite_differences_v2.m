@@ -93,9 +93,17 @@ filename = sprintf('output/kpp_v_%d_%d_theta_%.2f_p_%d_%d.gif',...
 % Indices using which we can represent the "inner" terms of the matrix
 I = 2:N-1; J = 2:N-1;
 
+% TODO(ansh): add comment about how to control mu
+mu = zeros(N);
+for i = 1:N
+  for j = 1:N
+    mu(i, j) = 1 + sin ( (pi / 4) * (i + j));
+  end
+end
+
 for step=1:time
   grad(I, J) = u(I, J - 1) + u(I, J + 1) + epsilon^2*u(I - 1, J) + epsilon^2*u(I + 1, J);
-  u(I, J) = u(I, J) + gamma * (t_delta / h^2) * (grad(I, J) - 2*(epsilon^2 + 1)*u(I, J)) + t_delta*(u(I,J) .* (1 - u(I,J)));
+  u(I, J) = u(I, J) + gamma * (t_delta / h^2) * (grad(I, J) - 2*(epsilon^2 + 1)*u(I, J)) + t_delta*(mu(I, J) .* (u(I,J) .* (1 - u(I,J))));
   u(1, :) = u(2, :); u(N, :) = u(N-1, :); u(:, 1) = u(:, 2); u(:, N) = u(:, N-1);
 
   % normalize so that no value in the solution goes beyond 1

@@ -39,6 +39,13 @@ f = zeros(n / h);       % growth rate
 epsilon = 0.1;
 gamma = 0.3;            % dampen the gradient
 
+% Parameters for compactly supported initial condition.
+v0 = 9E-1;              % some small nonzero intial value
+
+% Parameters for wedge initial condition direction.
+p = [100 100];                % specify the base point of our wedge
+v = [1 1];                    % specify the vector which determines wedge direction
+theta = pi / 30;               % angle within which you want to set up the wedge
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Initial conditions
@@ -48,7 +55,6 @@ N = n / h;              % mesh size
 u = zeros(N);           % the matrix ``u`` will hold our simulated values for the solution
 grad = 0 * u;           % we'll store the neighbor_average in this term
                         % TODO(ansh): rename to ``neighbors``
-v0 = 9E-1;              % some small nonzero intial value
 
 % Nonzero on a compact set
 
@@ -58,9 +64,7 @@ if INITIAL_DATA_TYPE == COMPACT_SUPPORT
 end
 
 if INITIAL_DATA_TYPE == WEDGE
-  p = [100 100];                % specify the base point of our wedge
-  v = [1 0];                    % specify the vector which determines wedge direction
-  tolerance = cos(pi / 3);      % sepcify the degree around the vector which we want nonzero
+  tolerance = cos(theta);       % sepcify the degree around the vector which we want nonzero
   for i = -N:1:N
     for j = -N:1:N
       cos_ = ([i j] * v') / (norm([i j]) * norm(v));

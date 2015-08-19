@@ -68,7 +68,7 @@ if INITIAL_DATA_TYPE == WEDGE
   for i = -N:1:N
     for j = -N:1:N
       cos_ = ([i j] * v') / (norm([i j]) * norm(v));
-      if tolerance < cos_ && cos_ < 1                   % make sure our [i j] are within the wedge
+      if tolerance <= cos_ && cos_ <= 1                   % make sure our [i j] are within the wedge
         i_p = i + p(1);
         j_p = j + p(2);
         if 1 <= i_p && i_p <= N && 1 <= j_p && j_p <= N

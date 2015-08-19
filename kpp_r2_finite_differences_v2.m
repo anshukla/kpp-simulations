@@ -31,7 +31,7 @@ h = 1;                  % mesh width
 % We want t_delta \approx h^2 where n is the mesh size. This cancels out
 % some ugly constant factors in the update equation.
 t_delta = h^2;          % time increment
-time = 80;              % number of steps to simulate. time * t_delta is the total "unit time"
+time = 120;              % number of steps to simulate. time * t_delta is the total "unit time"
 f = zeros(n / h);       % growth rate
 epsilon = 0.1;
 gamma = 0.3;            % dampen the gradient
@@ -57,7 +57,7 @@ end
 if INITIAL_DATA_TYPE == WEDGE
   p = [100 100];                % specify the base point of our wedge
   v = [1 0];                    % specify the vector which determines wedge direction
-  tolerance = cos(pi / 6);      % sepcify the degree around the vector which we want nonzero
+  tolerance = cos(pi / 3);      % sepcify the degree around the vector which we want nonzero
   for i = -N:1:N
     for j = -N:1:N
       cos_ = ([i j] * v') / (norm([i j]) * norm(v));
@@ -83,6 +83,15 @@ for step=1:time
   grad(I, J) = u(I, J - 1) + u(I, J + 1) + epsilon^2*u(I - 1, J) + epsilon^2*u(I + 1, J);
   u(I, J) = u(I, J) + gamma * (t_delta / h^2) * (grad(I, J) - 2*(epsilon^2 + 1)*u(I, J)) + t_delta*(u(I,J) .* (1 - u(I,J)));
   u(1, :) = u(2, :); u(N, :) = u(N-1, :); u(:, 1) = u(:, 2); u(:, N) = u(:, N-1);
+
+  % normalize so that no value in the solution goes beyond 1
+  for i = 1:N
+    for j = 1:N
+      if u(i, j) > 1
+        u(i, j) = 1;
+      end
+    end
+  end
 
   pcolor(u); shading interp;
   colorbar; colormap hsv;

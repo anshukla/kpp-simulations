@@ -16,20 +16,47 @@ clc; close all; clear;
 % Initialize parameters
 % We want t_delta \approx h^2 where n is the mesh size
 d = 2;              % working in R^2
-n = 20;             % simulation grid size
-h = 0.5;            % mesh width
+n = 150;             % simulation grid size
+h = 1;            % mesh width
 t_delta = h^2;      % time increment
-time = 1E2;         % number of steps to simulate. time * t_delta is the total "unit time"
+time = 80;         % number of steps to simulate. time * t_delta is the total "unit time"
 f = zeros(n / h);   % growth rate
-epsilon = 1;
-gamma = 0.1;        % dampen the gradient
+epsilon = 0.1;
+gamma = 0.3;        % dampen the gradient
 
 % Initial conditions
 
 N = n / h;          % mesh size
 u = zeros(N);       % initial conditions
-v0 = 1E-2;
-u(N/2, N/2) = v0; u(N/2 + 1, N/2) = v0; u(N/2, N/2 + 1) = v0; u(N/2 + 1, N/2 + 1) = v0; % nonzero on compact set
+%v0 = 1E-2;
+v0 = 0.9;
+
+% compact set
+
+%u(N/2, N/2) = v0; u(N/2 + 1, N/2) = v0; u(N/2, N/2 + 1) = v0; u(N/2 - 1, N/2 + 1) = v0; % nonzero on compact set
+
+% wedge
+
+% specify the base point of our wedge
+p = [100 100];
+
+% specify some vector
+v = [1 0];
+tolerance = cos(pi / 6);
+for i = -N:1:N
+  for j = -N:1:N
+    cos_ = ([i j] * v') / (norm([i j]) * norm(v));
+    if tolerance < cos_ && cos_ < 1                   % make sure our [i j] are within the wedge
+      i_p = i + p(1);
+      j_p = j + p(2);
+      if 1 <= i_p && i_p <= N && 1 <= j_p && j_p <= N
+        u(i + p(1),j + p(2)) = v0;
+      end
+    end
+  end
+end
+
+% initialize values of u
 grad = 0 * u;       % we'll store the gradient in this term
 u_avg = 0 * u;
 
@@ -39,21 +66,11 @@ u_avg = 0 * u;
 I = 2:N-1; J = 2:N-1;
 
 for step=1:time
-  %f = 0;
-  u_avg(I, J) = (1/5)*(u(I, J) + u(I, J-1) + u(I, J+1) + u(I-1, J) + u(I + 1, J));
-  u_avg(1, :) = u_avg(2, :); u_avg(N, :) = u_avg(N-1, :); u_avg(:, 1) = u_avg(:, 2); u_avg(:, N) = u_avg(:, N-1);
-  f = u_avg .* (1 - u_avg);
-  grad(I, J) = 1/gamma*(epsilon^2*u(I, J - 1) + epsilon^2*u(I, J + 1) + u(I - 1, J) + u(I + 1, J));
-  grad(1, :) = grad(2, :); grad(N, :) = grad(N-1, :); grad(:, 1) = grad(:, 2); grad(:, N) = grad(:, N-1);
-  u = u + (t_delta / h^2) * (grad - 2*(epsilon^2 + 1)*u) + t_delta*f;
-  if min(min(u)) < 0
-      fprintf('something just became negative');
-  end
-  if max(max(isnan(u))) == 1
-      fprintf('something messed up here')
-  end
-  %set(gcf,'renderer','painters');
-  pcolor(u); %shading interp;
+  grad(I, J) = epsilon^2*u(I, J - 1) + epsilon^2*u(I, J + 1) + u(I - 1, J) + u(I + 1, J);
+  u(I, J) = u(I, J) + gamma * (t_delta / h^2) * (grad(I, J) - 2*(epsilon^2 + 1)*u(I, J)) + t_delta*(u(I,J) .* (1 - u(I,J)));
+  u(1, :) = u(2, :); u(N, :) = u(N-1, :); u(:, 1) = u(:, 2); u(:, N) = u(:, N-1);
+
+  pcolor(u); shading interp;
   colorbar; colormap hsv;
   drawnow;
 end

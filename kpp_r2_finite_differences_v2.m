@@ -80,7 +80,7 @@ end
 I = 2:N-1; J = 2:N-1;
 
 for step=1:time
-  grad(I, J) = epsilon^2*u(I, J - 1) + epsilon^2*u(I, J + 1) + u(I - 1, J) + u(I + 1, J);
+  grad(I, J) = u(I, J - 1) + u(I, J + 1) + epsilon^2*u(I - 1, J) + epsilon^2*u(I + 1, J);
   u(I, J) = u(I, J) + gamma * (t_delta / h^2) * (grad(I, J) - 2*(epsilon^2 + 1)*u(I, J)) + t_delta*(u(I,J) .* (1 - u(I,J)));
   u(1, :) = u(2, :); u(N, :) = u(N-1, :); u(:, 1) = u(:, 2); u(:, N) = u(:, N-1);
 

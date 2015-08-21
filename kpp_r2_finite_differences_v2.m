@@ -1,8 +1,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% We attempt to simulate u_t = u_xx + e^2*u_yy + f(u) using finite
+% We attempt to simulate u_t = u_xx + e^2*u_yy + mu(x)f(u) using finite
 % difference approximations.
 %
-% Solve: u_t = u_{xx} + epsilon^2*u_{yy} + u(1-u)
+% Solve: u_t = u_{xx} + epsilon^2*u_{yy} + mu(x)f(u)
 % Approximation:
 % u(t_i + t_delta, x) = u(t_i, x) + t_delta / h^2 [ \sum u(t_i, x + h_e) - 2nu(t_i, x) ]
 %                       + t_delta * u(1-u)
